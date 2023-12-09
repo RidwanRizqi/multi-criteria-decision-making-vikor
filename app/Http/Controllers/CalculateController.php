@@ -15,198 +15,93 @@ class CalculateController extends Controller
     {
         $criterias = Criteria::all();
         // get weigt field from criteria table and / 100
-        $weights = $criterias->pluck('weight')->map(function ($weight) {
-            return $weight / 100;
-        });
+        $weights = $criterias->pluck('weight');
         $alternatives = Alternative::all();
         $samples = Sample::all();
+        $f_plus = [];
+        $f_min = [];
+
+        // calculate f_plus max for each criteria value and f_min min for each criteria value
+        foreach ($criterias as $criteria) {
+            $criteriaId = $criteria->id_criteria;
+            $f_plus[$criteriaId] = $samples->where('id_criteria', $criteriaId)->pluck('value')->max();
+            $f_min[$criteriaId] = $samples->where('id_criteria', $criteriaId)->pluck('value')->min();
+        }
+
+        // normalize matriks
+        $normalizedMatrix = [];
+
+        foreach ($samples as $sample) {
+            $criteriaId = $sample->id_criteria;
+            $alternativeId = $sample->id_alternative;
+            $value = $sample->value;
+
+            if (!isset($normalizedMatrix[$alternativeId])) {
+                $normalizedMatrix[$alternativeId] = [];
+            }
+
+            $normalizedMatrix[$alternativeId][$criteriaId] = ($f_plus[$criteriaId] - $value) / ($f_plus[$criteriaId] - $f_min[$criteriaId]);
+        }
+
+        // calculate weighted matrix
+        $weightedMatrix = [];
+
+        foreach ($normalizedMatrix as $alternativeId => $criteriaValues) {
+            foreach ($criteriaValues as $criteriaId => $normalizedValue) {
+                if (!isset($weightedMatrix[$alternativeId])) {
+                    $weightedMatrix[$alternativeId] = [];
+                }
+
+                $weightedMatrix[$alternativeId][$criteriaId] = $normalizedValue * $weights[$criteriaId - 1];
+            }
+        }
+
+        // calculate utility measure (S and R)
+        foreach ($weightedMatrix as $alternativeId => $criteriaValues) {
+            $s[$alternativeId] = 0;
+            $r[$alternativeId] = 0;
+            foreach ($criteriaValues as $criteriaId => $weightedValue) {
+                $s[$alternativeId] += $weightedValue;
+                $r[$alternativeId] = max($r[$alternativeId], $weightedValue);
+            }
+        }
+
+        // calculate vikor index (Q)
+        $s_min = min($s);
+        $s_max = max($s);
+        $r_min = min($r);
+        $r_max = max($r);
+        $v = 0.5;
+
+
+        foreach ($s as $alternativeId => $s_value) {
+            $r_value = $r[$alternativeId];
+            $q[$alternativeId] = ($v * (($s_value - $s_min) / ($s_max - $s_min))) + ((1 - $v) * (($r_value - $r_min) / ($r_max - $r_min)));
+        }
+
+        // merge array q and alternative
+        $result = array_combine($alternatives->pluck('name')->toArray(), $q);
+
+        // sort result by q dari rendah ke tinggi
+        arsort($result);
+        asort($result);
+
+
+
+
 
         return view('index', compact(
                 'alternatives',
                 'criterias',
                 'weights',
                 'samples',
+                'normalizedMatrix',
+                'weightedMatrix',
+                's',
+                'r',
+                'q',
+                'result',
             )
         );
-    }
-
-    public function calculateCriteriaAverages($criterias, $evaluations)
-    {
-        $criteriaAverages = [];
-        foreach ($criterias as $criteria) {
-            $criteriaId = $criteria->id_criteria;
-            $squaredSum = 0;
-            foreach ($evaluations as $evaluation) {
-                if ($evaluation->id_criteria === $criteriaId) {
-                    $squaredSum += pow($evaluation->value, 2);
-                }
-            }
-            $criteriaAverages[$criteriaId] = sqrt($squaredSum);
-        }
-        return $criteriaAverages;
-    }
-
-    public function calculateNormalizedMatrix($alternatives, $criterias, $evaluations, $criteriaAverages)
-    {
-        $normalizedMatrix = [];
-        foreach ($alternatives as $alternative) {
-            $normalizedRow = [];
-            foreach ($criterias as $criteria) {
-                $evaluation = $evaluations
-                    ->where('id_alternative', $alternative->id_alternative)
-                    ->where('id_criteria', $criteria->id_criteria)
-                    ->first();
-                if ($evaluation) {
-                    $normalizedValue = $evaluation->value / $criteriaAverages[$criteria->id_criteria];
-                    $normalizedRow[] = $normalizedValue;
-                } else {
-                    $normalizedRow[] = 0; // Handle jika tidak ada data evaluasi
-                }
-            }
-            $normalizedMatrix[] = $normalizedRow;
-        }
-        return $normalizedMatrix;
-    }
-
-    public function calculateWeightedMatrix($normalizedMatrix, $weights)
-    {
-        $weightedMatrix = [];
-        foreach ($normalizedMatrix as $row) {
-            $weightedRow = [];
-            for ($i = 0; $i < count($weights); $i++) {
-                $weightedRow[] = $row[$i] * $weights[$i];
-            }
-            $weightedMatrix[] = $weightedRow;
-        }
-        return $weightedMatrix;
-    }
-
-    public function calculateConcordanceMatrix($weightedMatrix, $weights, $n, $criterias)
-    {
-        $concordanceMatrix = [];
-        for ($k = 0; $k < $n; $k++) {
-            $concordanceRow = [];
-            for ($l = 0; $l < $n; $l++) {
-                if ($k === $l) {
-                    $concordanceRow[] = 0; // Nilai diagonal Ckl
-                } else {
-                    $Ckl = 0;
-                    for ($j = 0; $j < count($criterias); $j++) {
-                        if ($weightedMatrix[$k][$j] >= $weightedMatrix[$l][$j]) {
-                            $Ckl += $weights[$j]; // Bobot kriteria
-                        }
-                    }
-                    // Hitung Ckl sesuai dengan rumus yang sesuai
-                    $concordanceRow[] = $Ckl;
-                }
-            }
-            $concordanceMatrix[] = $concordanceRow;
-        }
-        return $concordanceMatrix;
-    }
-
-    public function calculateDiscordanceMatrix($weightedMatrix, $alternatives, $n, $criterias)
-    {
-        $discordanceMatrix = [];
-        for ($k = 0; $k < $n; $k++) {
-            $discordanceRow = [];
-            for ($l = 0; $l < $n; $l++) {
-                if ($k === $l) {
-                    $discordanceRow[] = 0; // Nilai diagonal Dkl
-                } else {
-                    $Dkl = 0;
-                    for ($j = 0; $j < count($alternatives) - 1; $j++) {
-                        if ($weightedMatrix[$k][$j] < $weightedMatrix[$l][$j]) {
-                            $DklValue = abs($weightedMatrix[$k][$j] - $weightedMatrix[$l][$j]);
-                            if ($DklValue > $Dkl) {
-                                $Dkl = $DklValue;
-                            }
-                        }
-                    }
-                    // Hitung Dkl sesuai dengan rumus yang sesuai
-                    $maxDkl = 0;
-                    for ($i = 0; $i < count($criterias); $i++) {
-                        $DklValue = abs($weightedMatrix[$k][$i] - $weightedMatrix[$l][$i]);
-                        if ($DklValue > $maxDkl) {
-                            $maxDkl = $DklValue;
-                        }
-                    }
-                    $discordanceRow[] = ($maxDkl === 0) ? 0 : ($Dkl / $maxDkl);
-                }
-            }
-            $discordanceMatrix[] = $discordanceRow;
-        }
-        return $discordanceMatrix;
-    }
-
-    public function calculateThreshold($matrix, $n)
-    {
-        $sigma = 0;
-        foreach ($matrix as $row) {
-            foreach ($row as $value) {
-                $sigma += $value;
-            }
-        }
-        return $sigma / ($n * ($n - 1));
-    }
-
-    public function calcluateConcordanceDominantMatrix($concordanceMatrix, $threshold_c)
-    {
-        $fMatrix = [];
-        foreach ($concordanceMatrix as $k => $cl) {
-            $fMatrix[$k] = [];
-            foreach ($cl as $l => $value) {
-                $fMatrix[$k][$l] = ($value >= $threshold_c ? 1 : 0);
-            }
-        }
-        return $fMatrix;
-    }
-
-    public function calculateDiscordanceDominantMatrix($discordanceMatrix, $threshold_d)
-    {
-        $gMatrix = [];
-        foreach ($discordanceMatrix as $k => $dl) {
-            $gMatrix[$k] = [];
-            foreach ($dl as $l => $value) {
-                $gMatrix[$k][$l] = ($value >= $threshold_d ? 1 : 0);
-            }
-        }
-        return $gMatrix;
-    }
-
-    public function calculateAggregationDominantMatrix($fMatrix, $gMatrix, $n)
-    {
-        $eMatrix = [];
-        for ($i = 0; $i < $n; $i++) {
-            $eMatrix[$i] = [];
-            for ($j = 0; $j < $n; $j++) {
-                // Hitung E sesuai dengan rumus E = F * G
-                $eValue = $fMatrix[$i][$j] * $gMatrix[$i][$j];
-                $eMatrix[$i][$j] = $eValue;
-            }
-        }
-        return $eMatrix;
-    }
-
-    public function calculatePriorities($eMatrix, $n, $alternatives)
-    {
-        $priorities = [];
-        for ($i = 0; $i < $n; $i++) {
-            $priorities[$i] = array_sum($eMatrix[$i]); // Menjumlahkan semua nilai dalam baris E
-        }
-
-        // Mengurutkan alternatif berdasarkan prioritas (dari tinggi ke rendah)
-        arsort($priorities);
-
-        // Mendapatkan daftar alternatif yang menjadi prioritas
-        $prioritizedAlternatives = [];
-        foreach ($priorities as $key => $value) {
-            $prioritizedAlternatives[] = $alternatives[$key];
-        }
-
-        // Menggabungkan peringkat dan alternatif menjadi satu array
-        return array_map(function ($alternative, $rank) {
-            return ['alternative' => $alternative, 'rank' => $rank];
-        }, $prioritizedAlternatives, $priorities);
     }
 }

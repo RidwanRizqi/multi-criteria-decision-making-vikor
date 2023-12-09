@@ -15,64 +15,88 @@ class AlternativeSeeder extends Seeder
     {
         $alternatives = [
             [
-                'name' => 'Hilmi'
+                'name' => 'A01',
             ],
             [
-                'name' => 'Zaki'
+                'name' => 'A02',
             ],
             [
-                'name' => 'Firza'
+                'name' => 'A03',
             ],
             [
-                'name' => 'Mirza'
+                'name' => 'A04',
             ],
             [
-                'name' => 'H. Pandu'
+                'name' => 'A05',
             ],
             [
-                'name' => 'Yuna'
+                'name' => 'A06',
             ],
             [
-                'name' => 'Intan'
+                'name' => 'A07',
             ],
             [
-                'name' => 'N. Dewi'
+                'name' => 'A08',
             ],
             [
-                'name' => 'Alfian'
+                'name' => 'A09',
             ],
             [
-                'name' => 'Nina'
+                'name' => 'A10',
             ],
             [
-                'name' => 'Bella'
+                'name' => 'A11',
             ],
             [
-                'name' => 'Kevin'
+                'name' => 'A12',
             ],
             [
-                'name' => 'K. Carlie'
+                'name' => 'A13',
             ],
             [
-                'name' => 'Shinta A.'
+                'name' => 'A14',
             ],
             [
-                'name' => 'Gatot'
+                'name' => 'A15',
             ],
             [
-                'name' => 'Lina'
+                'name' => 'A16',
             ],
             [
-                'name' => 'Wawan'
+                'name' => 'A17',
             ],
             [
-                'name' => 'N. Tantri'
+                'name' => 'A18',
             ],
             [
-                'name' => 'N. Usman'
+                'name' => 'A19',
             ],
             [
-                'name' => 'James'
+                'name' => 'A20',
+            ],
+            [
+                'name' => 'A21',
+            ],
+            [
+                'name' => 'A22',
+            ],
+            [
+                'name' => 'A23',
+            ],
+            [
+                'name' => 'A24',
+            ],
+            [
+                'name' => 'A25',
+            ],
+            [
+                'name' => 'A26',
+            ],
+            [
+                'name' => 'A27',
+            ],
+            [
+                'name' => 'A28',
             ],
         ];
 

@@ -15,7 +15,7 @@ return new class extends Migration
             $table->engine = 'MyISAM';
             $table->unsignedTinyInteger('id_criteria', true);
             $table->string('criteria', 100);
-            $table->float('weight');
+            $table->double('weight');
             $table->set('type', ['benefit', 'cost']);
             $table->timestamps();
         });

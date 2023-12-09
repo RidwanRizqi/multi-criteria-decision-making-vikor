@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('evaluations', function (Blueprint $table) {
+        Schema::create('samples', function (Blueprint $table) {
             $table->engine = 'MyISAM';
             $table->unsignedSmallInteger('id_alternative');
             $table->unsignedTinyInteger('id_criteria');

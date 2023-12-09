@@ -15,20 +15,24 @@ class CriteriaSeeder extends Seeder
     {
         $criterias = [
             [
-                'criteria' => 'Pengalaman',
-                'weight' => 0.3,
+                'criteria' => 'Indeks Prestasi',
+                'weight' => 45,
+                'type' => 'max'
             ],
             [
-                'criteria' => 'Kepemimpinan',
-                'weight' => 0.2,
+                'criteria' => 'Semester',
+                'weight' => 30,
+                'type' => 'min'
             ],
             [
-                'criteria' => 'Komunikas',
-                'weight' => 0.3,
+                'criteria' => 'Daya listrik',
+                'weight' => 10,
+                'type' => 'min'
             ],
             [
-                'criteria' => 'Pengembangan',
-                'weight' => 0.2,
+                'criteria' => 'Jumlah tagihan listrik',
+                'weight' => 15,
+                'type' => 'min'
             ]
         ];
 

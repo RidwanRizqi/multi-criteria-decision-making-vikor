@@ -19,6 +19,6 @@ class Criteria extends Model
 
     public function evaluations()
     {
-        return $this->hasMany(Evaluation::class, 'id_criteria', 'id_criteria');
+        return $this->hasMany(Sample::class, 'id_criteria', 'id_criteria');
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\EvaluationController;
+use App\Http\Controllers\CalculateController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -17,4 +17,4 @@ use Illuminate\Support\Facades\Route;
 
 //route / to evaluation controller index
 
-Route::get('/', [EvaluationController::class, 'index'])->name('index');
+Route::get('/', [CalculateController::class, 'index'])->name('index');

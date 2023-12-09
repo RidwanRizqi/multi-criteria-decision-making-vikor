@@ -18,6 +18,6 @@ class Alternative extends Model
 
         public function evaluations()
         {
-            return $this->hasMany(Evaluation::class, 'id_alternative', 'id_alternative');
+            return $this->hasMany(Sample::class, 'id_alternative', 'id_alternative');
         }
 }

@@ -17,22 +17,22 @@ class CriteriaSeeder extends Seeder
             [
                 'criteria' => 'Indeks Prestasi',
                 'weight' => 45,
-                'type' => 'max'
+                'type' => 'benefit'
             ],
             [
                 'criteria' => 'Semester',
                 'weight' => 30,
-                'type' => 'min'
+                'type' => 'cost'
             ],
             [
                 'criteria' => 'Daya listrik',
                 'weight' => 10,
-                'type' => 'min'
+                'type' => 'cost'
             ],
             [
                 'criteria' => 'Jumlah tagihan listrik',
                 'weight' => 15,
-                'type' => 'min'
+                'type' => 'cost'
             ]
         ];
 

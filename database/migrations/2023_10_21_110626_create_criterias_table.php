@@ -16,7 +16,7 @@ return new class extends Migration
             $table->unsignedTinyInteger('id_criteria', true);
             $table->string('criteria', 100);
             $table->float('weight');
-            $table->set('type', ['max', 'min']);
+            $table->set('type', ['benefit', 'cost']);
             $table->timestamps();
         });
     }

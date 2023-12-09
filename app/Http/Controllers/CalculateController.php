@@ -4,49 +4,28 @@ namespace App\Http\Controllers;
 
 use App\Models\Alternative;
 use App\Models\Criteria;
-use App\Models\Evaluation;
+use App\Models\Sample;
 
-class EvaluationController extends Controller
+class CalculateController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $alternatives = Alternative::all();
         $criterias = Criteria::all();
-        $evaluations = Evaluation::all();
-        $n = count($alternatives);
-
-        $criteriaAverages = $this->calculateCriteriaAverages($criterias, $evaluations);
-        $normalizedMatrix = $this->calculateNormalizedMatrix($alternatives, $criterias, $evaluations, $criteriaAverages);
-        $weights = $criterias->pluck('weight');
-        $weightedMatrix = $this->calculateWeightedMatrix($normalizedMatrix, $weights);
-        $concordanceMatrix = $this->calculateConcordanceMatrix($weightedMatrix, $weights, $n, $criterias);
-        $discordanceMatrix = $this->calculateDiscordanceMatrix($weightedMatrix, $alternatives, $n, $criterias);
-        $threshold_c = $this->calculateThreshold($concordanceMatrix, $n);
-        $threshold_d = $this->calculateThreshold($discordanceMatrix, $n);
-        $fMatrix = $this->calcluateConcordanceDominantMatrix($concordanceMatrix, $threshold_c);
-        $gMatrix = $this->calculateDiscordanceDominantMatrix($discordanceMatrix, $threshold_d);
-        $eMatrix = $this->calculateAggregationDominantMatrix($fMatrix, $gMatrix, $n);
-        $prioritizedAlternativesWithRank = $this->calculatePriorities($eMatrix, $n, $alternatives);
+        // get weigt field from criteria table and / 100
+        $weights = $criterias->pluck('weight')->map(function ($weight) {
+            return $weight / 100;
+        });
+        $alternatives = Alternative::all();
+        $samples = Sample::all();
 
         return view('index', compact(
                 'alternatives',
                 'criterias',
-                'evaluations',
-                'normalizedMatrix',
-                'criteriaAverages',
                 'weights',
-                'weightedMatrix',
-                'concordanceMatrix',
-                'discordanceMatrix',
-                'threshold_c',
-                'threshold_d',
-                'fMatrix',
-                'gMatrix',
-                'eMatrix',
-                'prioritizedAlternativesWithRank',
+                'samples',
             )
         );
     }

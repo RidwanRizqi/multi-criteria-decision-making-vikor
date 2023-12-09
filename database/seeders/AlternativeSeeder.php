@@ -15,20 +15,65 @@ class AlternativeSeeder extends Seeder
     {
         $alternatives = [
             [
-                'name' => 'A1',
+                'name' => 'Hilmi'
             ],
             [
-                'name' => 'A2',
+                'name' => 'Zaki'
             ],
             [
-                'name' => 'A3',
+                'name' => 'Firza'
             ],
             [
-                'name' => 'A4',
+                'name' => 'Mirza'
             ],
             [
-                'name' => 'A5',
-            ]
+                'name' => 'H. Pandu'
+            ],
+            [
+                'name' => 'Yuna'
+            ],
+            [
+                'name' => 'Intan'
+            ],
+            [
+                'name' => 'N. Dewi'
+            ],
+            [
+                'name' => 'Alfian'
+            ],
+            [
+                'name' => 'Nina'
+            ],
+            [
+                'name' => 'Bella'
+            ],
+            [
+                'name' => 'Kevin'
+            ],
+            [
+                'name' => 'K. Carlie'
+            ],
+            [
+                'name' => 'Shinta A.'
+            ],
+            [
+                'name' => 'Gatot'
+            ],
+            [
+                'name' => 'Lina'
+            ],
+            [
+                'name' => 'Wawan'
+            ],
+            [
+                'name' => 'N. Tantri'
+            ],
+            [
+                'name' => 'N. Usman'
+            ],
+            [
+                'name' => 'James'
+            ],
         ];
 
         foreach ($alternatives as $alternative) {
